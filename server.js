@@ -33,7 +33,26 @@ io.on("connection", (socket) => {
             userId,
             roomId
         });
-       
+        
+        socket.on("user:call", (data) => {  
+            const {to, offer} = data;
+            io.to(to).emit("incoming:call", {from:socket.id, offer});
+        });
+
+        socket.on("call:accepted", ({to,ans}) => {
+            io.to(to).emit("call-accepted", {from:socket.id,offer:ans});
+        });
+
+        socket.on("peer:nego:needed", (data) => {
+            const {offer} = data;
+            io.to(data.to).emit("peer:nego:needed", {from:socket.id, offer});
+        });
+
+        socket.on("peer:nego:done", (data) => {
+            const {ans} = data;
+            io.to(data.to).emit("peer:nego:final", {from:socket.id, ans});
+        });
     });
+
 });
 
